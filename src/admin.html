@@ -26,8 +26,21 @@
       <!-- Tarjeta de administración 1 -->
       <div class="bg-pink-100 p-6 rounded-lg shadow-md">
         <h3 class="text-xl font-semibold text-pink-800 mb-4">Gestionar usuarios</h3>
-        <p class="text-pink-600">Agrega, edita o elimina usuarios.</p>
-        <button class="mt-4 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
+        <p class="text-pink-600">Accede a los perfiles restringidos.</p>
+        <button id="acceder-btn" class="mt-4 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
+
+        <!-- Formulario de PIN (Inicialmente Oculto) -->
+        <div id="pin-container" class="hidden mt-4">
+          <input type="password" id="pin-input" placeholder="Ingresa tu PIN" class="border p-2 w-1/2 rounded">
+          <button id="confirmar-pin-btn" class="mt-2 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300 w-1/2">Validar PIN</button>
+        </div>
+
+        <!-- Opciones de administración (Ocultas hasta validar PIN) -->
+        <div id="opciones-admin" class="hidden mt-4">
+          <button id="add-profile" class="mt-4 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Agregar Perfil</button>
+          <button id="edit-profile" class="mt-4 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Editar Perfil</button>
+          <button id="delete-profile" class="mt-4 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Eliminar Perfil</button>
+        </div>
       </div>
 
       <!-- Tarjeta de administración 2 -->
@@ -45,5 +58,7 @@
       </div>
     </div>
   </main>
+
+  <script src="../scripts/scriptPerfiles.js"></script>
 </body>
 </html>
