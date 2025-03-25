@@ -23,6 +23,30 @@
     .perfils-link:hover {
       background-color: #DB2777;
     }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+    }
+    /* Ajuste para 4 tarjetas en pantallas grandes */
+    @media (min-width: 1280px) {
+      .xl-grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
   </style>
 </head>
 <body class="bg-pink-50">
@@ -44,84 +68,116 @@
 
   <!-- Contenido principal -->
   <main class="flex justify-center p-8">
-    <div class="max-w-6xl w-full mx-auto px-6">
+    <div class="max-w-7xl w-full mx-auto px-6">
   
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Tarjeta 1: Usuarios -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl-grid-cols-4 gap-6">
+        <!-- Tarjeta 1: Gestionar perfiles -->
         <div class="p-6 rounded-xl shadow hover:shadow-lg transition duration-300 text-center">
-          <h3 class="text-xl font-bold text-pink-700 mb-2">Gestionar usuarios</h3>
+          <h3 class="text-xl font-bold text-pink-700 mb-2">Gestionar perfiles</h3>
           <p class="text-pink-600 mb-4">Accede a los perfiles restringidos.</p>
-        <div class="flex justify-center">
-          <button id="acceder-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
-        </div>
-  
+          <div class="flex justify-center">
+            <button id="acceder-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
+          </div>
+    
           <div id="pin-container" class="hidden mt-4">
             <div class="flex justify-center">
               <input type="password" id="pin-input" placeholder="Ingresa tu PIN"
                 class="border p-2 w-64 rounded mb-2 text-center" />
             </div>
-          <div class="flex justify-center">
-            <button id="confirmar-pin-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Validar PIN</button>
+            <div class="flex justify-center">
+              <button id="confirmar-pin-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Validar PIN</button>
+            </div>
+          </div>
+    
+          <div id="opciones-admin" class="flex flex-col items-center hidden mt-4 space-y-2">
+            <button id="add-profile" class="w-full max-w-xs mt-2 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Agregar Perfil</button>
+            <button id="edit-profile" class="w-full max-w-xs mt-2 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Editar Perfil</button>
+            <button id="delete-profile" class="w-full max-w-xs mt-2 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Eliminar Perfil</button>
           </div>
         </div>
   
-          <div id="opciones-admin" class="flex justify-center hidden mt-4 space-y-2">
-            <button id="add-profile" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Agregar Perfil</button>
-            <button id="edit-profile" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Editar Perfil</button>
-            <button id="delete-profile" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Eliminar Perfil</button>
-          </div>
-        </div>
-  
-        <!-- Tarjeta 2: Playlists -->
+        <!-- Tarjeta 2: Gestionar playlists -->
         <div class="p-6 rounded-xl shadow hover:shadow-lg transition duration-300 text-center">
           <h3 class="text-xl font-bold text-pink-700 mb-2">Gestionar playlists</h3>
           <p class="text-pink-600 mb-4">Administra tus listas de reproducción.</p>
-        <div class="flex justify-center">
-          <button id="acceder-playlists-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
-        </div>
-  
+          <div class="flex justify-center">
+            <button id="acceder-playlists-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
+          </div>
+    
           <div id="pin-container-playlists" class="hidden mt-4">
             <div class="flex justify-center">
               <input type="password" id="pin-input-playlists" placeholder="Ingresa tu PIN"
                 class="border p-2 w-64 rounded mb-2 text-center" />
             </div>
-          <div class="flex justify-center">
-            <button id="confirmar-pin-playlists" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Validar PIN</button>
+            <div class="flex justify-center">
+              <button id="confirmar-pin-playlists" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Validar PIN</button>
+            </div>
           </div>
-        </div>
-  
+    
           <div id="opciones-playlists" class="flex justify-center hidden mt-4">
             <button id="btn-gestionar-playlists" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Administrar Playlists</button>
           </div>
         </div>
   
-        <!-- Tarjeta 3: Videos -->
-        <div class="p-10 rounded-xl shadow hover:shadow-lg transition duration-300 text-center">
+        <!-- Tarjeta 3: Gestionar videos -->
+        <div class="p-6 rounded-xl shadow hover:shadow-lg transition duration-300 text-center">
           <h3 class="text-xl font-bold text-pink-700 mb-2">Gestionar videos</h3>
           <p class="text-pink-600 mb-4">Configura los videos asociados a las playlists.</p>
           <div class="flex justify-center">
             <button id="acceder-videos-btn" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Acceder</button>
           </div>
-
+    
           <div id="pin-container-videos" class="hidden mt-4">
             <div class="flex justify-center">
               <input type="password" id="pin-input-videos" placeholder="Ingresa tu PIN"
                 class="border p-2 w-64 rounded mb-2 text-center" />
             </div>
-          <div class="flex justify-center">
-            <button id="confirmar-pin-video" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700">Validar PIN</button>
+            <div class="flex justify-center">
+              <button id="confirmar-pin-video" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Validar PIN</button>
+            </div>
+          </div>
+    
+          <div id="opciones-videos" class="flex justify-center hidden mt-4">
+            <button id="btn-gestionar-videos" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Administrar Videos</button>
           </div>
         </div>
   
-          <div id="opciones-videos" class="flex justify-center hidden mt-4">
-            <button id="btn-gestionar-videos" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">Administrar Videos</button>
+        <!-- Tarjeta 4: Gestionar mi Perfil (con botones del tamaño de "Acceder") -->
+        <div class="p-6 rounded-xl shadow hover:shadow-lg transition duration-300 text-center">
+          <h3 class="text-xl font-bold text-pink-700 mb-2">Gestionar mi Perfil</h3>
+          <p class="text-pink-600 mb-4">Configuración de tu cuenta principal.</p>
+          
+          <div class="flex flex-col items-center space-y-4">
+            <!-- Botón para editar cuenta (redirige a otra página) -->
+            <a href="editarUsuario.html" class="w-40 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300 text-center">
+              Editar mi cuenta
+            </a>
+            
+            <!-- Botón para eliminar cuenta (con confirmación) -->
+            <button id="btn-eliminar-cuenta" class="w-40 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300">
+              Eliminar mi cuenta
+            </button>
           </div>
         </div>
       </div>
     </div>
   </main>
+
+  <!-- Modal para confirmar eliminación -->
+  <div id="modal-eliminar" class="modal">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold text-pink-700 mb-4">Confirmar eliminación</h3>
+      <p class="mb-4">¿Estás seguro que deseas eliminar tu cuenta permanentemente? Todos tus datos se perderán.</p>
+      <div class="flex justify-end space-x-2">
+        <button id="cancelar-eliminar" class="px-4 py-2 rounded-lg border border-pink-600 text-pink-600 hover:bg-pink-50 transition">Cancelar</button>
+        <button id="confirmar-eliminar" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Enlace perfiles-->
   <a href="inicio.html" class="perfils-link">Regresar a Perfiles</a>
+  
   <script src="../scripts/scriptPerfiles.js"></script>
   <script src="../scripts/scriptPlaylists.js"></script>
   <script src="../scripts/scriptVideos.js"></script>

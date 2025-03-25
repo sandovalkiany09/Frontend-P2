@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Cuenta - KidsTube</title>
+  <link href="./output.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+<body class="bg-pink-50 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <!-- Título con fuente personalizada -->
+    <div class="flex items-center justify-center mb-6">
+      <img src="https://cdn.pixabay.com/photo/2020/11/01/04/21/youtube-5702837_1280.png" alt="Logo KidsTube" class="w-12 h-12 mr-2">
+      <h1 class="text-4xl font-pacifico text-pink-600">Editar Cuenta</h1>
+    </div>
+    
+    <form id="form-editar-cuenta">
+      <!-- Nombre -->
+      <div class="mb-4">
+        <label for="nombre" class="block text-pink-600 mb-2">Nombre *</label>
+        <input
+          type="text"
+          id="nombre"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Tu nombre"
+          required
+        />
+      </div>
+      
+      <!-- Apellidos -->
+      <div class="mb-4">
+        <label for="apellidos" class="block text-pink-600 mb-2">Apellidos *</label>
+        <input
+          type="text"
+          id="apellidos"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Tus apellidos"
+          required
+        />
+      </div>
+      
+      <!-- Correo Electrónico -->
+      <div class="mb-4">
+        <label for="correo" class="block text-pink-600 mb-2">Correo Electrónico *</label>
+        <input
+          type="email"
+          id="correo"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Tu correo electrónico"
+          required
+        />
+      </div>
+      
+      <!-- Contraseña Actual -->
+      <div class="mb-4">
+        <label for="contrasenia-actual" class="block text-pink-600 mb-2">Contraseña Actual *</label>
+        <input
+          type="password"
+          id="contrasenia-actual"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Ingresa tu contraseña actual"
+          required
+        />
+      </div>
+      
+      <!-- Nueva Contraseña -->
+      <div class="mb-4">
+        <label for="contrasenia-nueva" class="block text-pink-600 mb-2">Nueva Contraseña</label>
+        <input
+          type="password"
+          id="contrasenia-nueva"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Deja en blanco si no quieres cambiar"
+        />
+      </div>
+      
+      <!-- Teléfono -->
+      <div class="mb-4">
+        <label for="telefono" class="block text-pink-600 mb-2">Número Telefónico *</label>
+        <input
+          type="tel"
+          id="telefono"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Tu número telefónico"
+          required
+        />
+      </div>
+      
+      <!-- PIN Actual -->
+      <div class="mb-4">
+        <label for="pin-actual" class="block text-pink-600 mb-2">PIN Actual (6 dígitos) *</label>
+        <input
+          type="password"
+          id="pin-actual"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Tu pin actual"
+          maxlength="6"
+          required
+        />
+      </div>
+      
+      <!-- Nuevo PIN -->
+      <div class="mb-4">
+        <label for="pin-nuevo" class="block text-pink-600 mb-2">Nuevo PIN (6 dígitos)</label>
+        <input
+          type="password"
+          id="pin-nuevo"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+          placeholder="Deja en blanco si no quieres cambiar"
+          maxlength="6"
+        />
+      </div>
+      
+      <!-- País -->
+      <div class="mb-4">
+        <label for="pais" class="block text-pink-600 mb-2">País</label>
+        <select
+          id="pais"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+          <option value="">Selecciona tu país</option>
+          <!-- Opciones de países se cargarán aquí -->
+        </select>
+      </div>
+      
+      <!-- Fecha de Nacimiento-->
+      <div class="mb-4">
+        <label for="fecha-nacimiento" class="block text-pink-600 mb-2">Fecha de Nacimiento *</label>
+        <input
+          type="date"
+          id="fecha-nacimiento"
+          class="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 date-input"
+          required
+        />
+        <p id="error-fecha-nacimiento" class="error-text"></p>
+      </div>
+      
+      <!-- Botones -->
+      <div class="flex flex-col space-y-3">
+        <button
+          type="submit"
+          class="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-300"
+        >
+          Guardar Cambios
+        </button>
+        <a
+          href="admin.html"
+          class="w-full text-center border border-pink-600 text-pink-600 py-2 px-4 rounded-lg hover:bg-pink-50 transition duration-300"
+        >
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+  <script src="../scripts/scriptRegistro.js"></script>
+</body>
+</html>
