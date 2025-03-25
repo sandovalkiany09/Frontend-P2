@@ -1,12 +1,10 @@
-
-document.addEventListener("DOMContentLoaded", function() {
-    obtenerYMostrarImagenes();  // Llamada a tu función cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", function () {
+    obtenerYMostrarImagenes();
 });
 
-// Función para obtener y mostrar imágenes almacenadas en el backend
 function obtenerYMostrarImagenes() {
     const imagenesContainer = document.getElementById('imagenes-container');
-    const imagenInput = document.getElementById('imagen'); // Input oculto para almacenar la selección
+    const imagenInput = document.getElementById('imagen');
 
     const nombresImagenes = [
         "img0.jpg", "img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg", "img5.jpg", "img6.jpg", "img7.jpg",
@@ -14,12 +12,17 @@ function obtenerYMostrarImagenes() {
         "img16.jpg", "img17.jpg", "img18.jpg", "img19.jpg", "img20.jpg"
     ];
 
-    imagenesContainer.innerHTML = ""; // Limpiar contenedor antes de agregar imágenes
+    imagenesContainer.innerHTML = "";
 
     nombresImagenes.forEach(nombre => {
         const img = document.createElement('img');
         img.src = `http://localhost:3000/img/${nombre}`; // Ruta de la imagen en el servidor
         img.classList.add('w-20', 'h-20', 'cursor-pointer', 'rounded-lg'); // Sin borde por defecto
+
+        // Asegura que el tamaño se aplique incluso si el servidor entrega imágenes más grandes
+        img.style.width = "64px";
+        img.style.height = "64px";
+        img.style.objectFit = "cover";
 
         img.onclick = () => {
             imagenInput.value = `http://localhost:3000/img/${nombre}`; // Guardar la ruta en el input oculto

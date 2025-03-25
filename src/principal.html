@@ -20,6 +20,22 @@
     .video-card:hover {
       transform: scale(1.02); /* Efecto de zoom al pasar el mouse */
     }
+    .inicio-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #F9A8D4;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+    .inicio-link:hover {
+      background-color: #DB2777;
+    }
   </style>
 </head>
 <body class="bg-pink-50">
@@ -38,7 +54,12 @@
       <button class="ml-4 bg-pink-300 text-pink-800 px-4 py-2 rounded-lg hover:bg-pink-400 transition duration-300">Buscar</button>
     </div>
     <div class="flex items-center">
-      <img src="https://via.placeholder.com/40" alt="Perfil" class="w-10 h-10 rounded-full border-2 border-pink-300">
+      <img 
+      src="https://i.pinimg.com/736x/2a/8c/a8/2a8ca89843241c3e2dfb50fa150ddb1f.jpg"
+      alt="Perfil"
+      style="width: 40px; height: 40px; object-fit: cover;"
+      class="rounded-full border-2 border-pink-300"
+    />
     </div>
   </nav>
 
@@ -48,60 +69,26 @@
     <aside class="sidebar w-64 p-4 shadow-md">
       <ul>
         <li class="mb-4">
-          <a href="#" class="flex items-center text-pink-800 hover:text-pink-900">
-            <span class="mr-2">🏠</span> Inicio
-          </a>
-        </li>
-        <li class="mb-4">
-          <a href="#" class="flex items-center text-pink-800 hover:text-pink-900">
-            <span class="mr-2">🔍</span> Explorar
-          </a>
-        </li>
-        <li class="mb-4">
-          <a href="#" class="flex items-center text-pink-800 hover:text-pink-900">
-            <span class="mr-2">📺</span> Suscripciones
-          </a>
-        </li>
-        <li class="mb-4">
-          <a href="#" class="flex items-center text-pink-800 hover:text-pink-900">
-            <span class="mr-2">📚</span> Biblioteca
-          </a>
-        </li>
-        <li class="mb-4">
-          <a href="#" class="flex items-center text-pink-800 hover:text-pink-900">
-            <span class="mr-2">⏳</span> Historial
+          <a href="inicio.html" class="flex items-center text-pink-800 hover:text-pink-900">
+            <span class="mr-2">🏠</span>
           </a>
         </li>
       </ul>
     </aside>
 
-    <!-- Sección de videos -->
-    <main class="flex-1 p-6">
-      <h2 class="text-2xl font-semibold text-pink-800 mb-6">Recomendados para ti</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Tarjeta de video -->
-        <div class="video-card p-4 rounded-lg shadow-lg">
-          <img src="https://via.placeholder.com/320x180" alt="Video" class="w-full rounded-lg mb-2">
-          <h2 class="text-pink-800 text-lg font-semibold">Título del Video</h2>
-          <p class="text-pink-600">Nombre del Canal</p>
-          <p class="text-pink-500 text-sm">1.2M vistas • Hace 2 días</p>
-        </div>
-        <!-- Repetir tarjetas de video -->
-        <div class="video-card p-4 rounded-lg shadow-lg">
-          <img src="https://via.placeholder.com/320x180" alt="Video" class="w-full rounded-lg mb-2">
-          <h2 class="text-pink-800 text-lg font-semibold">Título del Video</h2>
-          <p class="text-pink-600">Nombre del Canal</p>
-          <p class="text-pink-500 text-sm">1.2M vistas • Hace 2 días</p>
-        </div>
-        <div class="video-card p-4 rounded-lg shadow-lg">
-          <img src="https://via.placeholder.com/320x180" alt="Video" class="w-full rounded-lg mb-2">
-          <h2 class="text-pink-800 text-lg font-semibold">Título del Video</h2>
-          <p class="text-pink-600">Nombre del Canal</p>
-          <p class="text-pink-500 text-sm">1.2M vistas • Hace 2 días</p>
-        </div>
-        <!-- Puedes agregar más tarjetas de video aquí -->
+  <!-- Sección de listas -->
+  <main class="flex-1 p-6">
+    <h2 class="text-2xl font-semibold text-pink-800 mb-6">Tus Listas de Reproducción</h2>
+    <div id="playlists-container" class="space-y-4"></div>
+  </main>
+</div>
+
       </div>
     </main>
   </div>
+
+  <!-- Enlace de administrador-->
+  <a href="inicio.html" class="inicio-link">Salir del Perfil</a>
+  <script src="../scripts/scriptPrincipal.js"></script>
 </body>
 </html>

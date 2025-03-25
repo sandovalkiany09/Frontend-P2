@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Playlists</title>
+  <link href="./output.css" rel="stylesheet" />
+  <style>
+    .admin-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #F9A8D4;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+    .admin-link:hover {
+      background-color: #DB2777;
+    }
+  </style>
+</head>
+<body class="bg-pink-50 p-8">
+  <h1 class="text-3xl font-bold text-pink-700 mb-6">Playlists</h1>
+
+  <!-- Listado de Playlists -->
+  <div id="playlists-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
+
+  <!-- Botón Agregar Nueva -->
+  <button id="btn-agregar" class="mt-6 bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Agregar Nueva Playlist</button>
+
+  <!-- Formulario de Playlist (Oculto inicialmente) -->
+  <div id="formulario" class="hidden">
+    <h2 class="text-xl font-semibold text-pink-700 mb-4">Nueva Playlist</h2>
+
+    <label class="block mb-1 text-pink-800 font-medium">Nombre *</label>
+    <input type="text" id="nombre" class="border border-pink-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-pink-500"/>
+
+    <label class="block mb-1 text-pink-800 font-medium">Perfiles Asociados *</label>
+    <select id="perfiles" multiple class="border border-pink-300 p-2 w-full rounded mb-4 h-32 focus:outline-none focus:ring-2 focus:ring-pink-500"></select>
+
+    <div class="flex justify-end">
+      <button id="guardarPlaylist" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+  <!-- Enlace de administrador-->
+  <a href="admin.html" class="admin-link">Menú Principal Administrador</a>
+  <script src="../scripts/scriptPlaylists.js"></script>
+  
+</body>
+</html>

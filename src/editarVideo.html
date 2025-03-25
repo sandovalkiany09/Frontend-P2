@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Video</title>
+  <link href="./output.css" rel="stylesheet"/>
+  <style>
+    .admin-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #F9A8D4;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+    .admin-link:hover {
+      background-color: #DB2777;
+    }
+  </style>
+</head>
+<body class="bg-pink-50 p-8">
+  <h1 class="text-3xl font-bold text-pink-700 mb-6">Editar Video</h1>
+
+  <div class="bg-white p-6 rounded shadow-md max-w-xl mx-auto">
+    <label class="block mb-2 text-pink-700 font-medium">Nombre del video *</label>
+    <input type="text" id="video-nombre" class="border border-pink-300 p-2 w-full rounded mb-4"/>
+
+    <label class="block mb-2 text-pink-700 font-medium">URL de YouTube *</label>
+    <input type="text" id="video-url" class="border border-pink-300 p-2 w-full rounded mb-4"/>
+
+    <label class="block mb-2 text-pink-700 font-medium">Descripción</label>
+    <textarea id="video-descripcion" class="border border-pink-300 p-2 w-full rounded mb-4"></textarea>
+
+    <div class="flex justify-end">
+      <button id="actualizarVideo" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Enlace de administrador-->
+  <a href="admin.html" class="admin-link">Menú Principal Administrador</a>
+  <script src="../scripts/scriptVideos.js"></script>
+  </a>
+</body>
+</html>
