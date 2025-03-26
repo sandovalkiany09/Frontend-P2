@@ -13,6 +13,47 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       }
 
+      if (window.location.pathname.includes("admin.html")) {
+        const btnEliminarCuenta = document.getElementById("btn-eliminar-cuenta");
+        const modalEliminar = document.getElementById("modal-eliminar");
+        const cancelarEliminar = document.getElementById("cancelar-eliminar");
+        const confirmarEliminar = document.getElementById("confirmar-eliminar");
+      
+        if (btnEliminarCuenta && modalEliminar && cancelarEliminar && confirmarEliminar) {
+          // Mostrar modal
+          btnEliminarCuenta.addEventListener("click", () => {
+            modalEliminar.classList.remove("hidden");
+          });
+      
+          // Cancelar
+          cancelarEliminar.addEventListener("click", () => {
+            modalEliminar.classList.add("hidden");
+          });
+      
+          // Confirmar eliminación
+          confirmarEliminar.addEventListener("click", async () => {
+            try {
+                const response = await fetch(`http://localhost:3000/registro?id=${usuarioId}`, {
+                    method: "DELETE"
+                  });
+      
+              const data = await response.json();
+      
+              if (response.ok) {
+                alert("Cuenta eliminada correctamente.");
+                localStorage.clear();
+                window.location.href = "index.html"; 
+              } else {
+                alert(data.message || "No se pudo eliminar la cuenta.");
+              }
+            } catch (error) {
+              console.error("Error al eliminar cuenta:", error);
+              alert("Ocurrió un error al eliminar la cuenta.");
+            }
+          });
+        }
+      } 
+
     // Verifica si estás en la página "Agregar Perfil"
     if (window.location.pathname.includes("agregarPerfil.html")) {
     

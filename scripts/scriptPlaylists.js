@@ -91,8 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="bg-pink-100 p-4 rounded shadow">
                 <h3 class="text-lg font-semibold text-pink-700">${p.nombre}</h3>
                 <p class="text-pink-500">Videos: ${p.cantidadVideos || 0}</p>
-                <button onclick="window.location.href='editarPlaylist.html?id=${p._id}'" class="bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Editar</button>
-                <button onclick="eliminarPlaylist('${p._id}')" class= "bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Eliminar</button>
+                <button onclick="window.location.href='editarPlaylist.html?id=${p._id}'" class="bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Editar ✏️</button>
+                <button onclick="eliminarPlaylist('${p._id}')" class= "bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
               </div>
             `;
           });

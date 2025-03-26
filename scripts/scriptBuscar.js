@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Elementos del DOM
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const playlistsContainer = document.getElementById('playlists-container');
@@ -13,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function() {
         // Si ya era solo el ID, lo dejamos igual
     }
 
-    // Función para mostrar mensajes
     function mostrarMensaje(mensaje, esError = false) {
         playlistsContainer.innerHTML = `
             <p class="${esError ? 'text-red-600' : 'text-pink-800'} text-center py-4">
@@ -22,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
     }
 
-    // Función para buscar videos
     async function buscarVideos(terminoBusqueda) {
         try {
             if (!perfilId) {
@@ -47,15 +44,14 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             const resultados = await response.json();
-            mostrarResultados(resultados);
+            mostrarResultados(resultados, terminoBusqueda);
         } catch (error) {
             console.error("Error completo:", error);
             mostrarMensaje("Ocurrió un error al realizar la búsqueda", true);
         }
     }
 
-    // Función para mostrar resultados (versión simplificada)
-    function mostrarResultados(videos) {
+    function mostrarResultados(videos, terminoBusqueda = '') {
         playlistsContainer.innerHTML = '';
 
         if (!videos || videos.length === 0) {
@@ -63,17 +59,24 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        const terminoLower = terminoBusqueda.toLowerCase();
+
         videos.forEach(video => {
             const videoCard = document.createElement('div');
             videoCard.className = 'video-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 mb-4';
             
-            // Limpiar el nombre del video (eliminar duplicados)
             const nombreLimpio = video.nombre.split('&')[0].trim();
-            
+
+            // Resaltar coincidencias
+            const nombreResaltado = nombreLimpio.replace(
+                new RegExp(`(${terminoLower})`, 'ig'),
+                `<span class="bg-yellow-200 font-bold">$1</span>`
+            );
+
             videoCard.innerHTML = `
                 <div class="flex flex-col">
                     <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-pink-800 mb-1">${nombreLimpio}</h3>
+                        <h3 class="text-lg font-semibold text-pink-800 mb-1">${nombreResaltado}</h3>
                         <p class="text-sm text-pink-600 mb-2">Lista: ${video.listaNombre}</p>
                         <p class="text-xs text-gray-500 mb-3">${video.descripcion?.substring(0, 100) || ''}...</p>
                     </div>
@@ -90,17 +93,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Event listeners
+    // Botón buscar (opcional si el usuario prefiere usarlo)
     searchButton.addEventListener('click', () => {
         buscarVideos(searchInput.value);
     });
 
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            buscarVideos(searchInput.value);
-        }
+    // Búsqueda en vivo
+    let timeout = null;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            buscarVideos(e.target.value);
+        }, 300); // Espera 300ms después de escribir
     });
 
     // Mensaje inicial
-    mostrarMensaje("Ingresa lo que deseas buscar y presiona Enter o haz clic en Buscar");
+    mostrarMensaje("Ingresa lo que deseas buscar y se mostrarán resultados automáticamente");
 });

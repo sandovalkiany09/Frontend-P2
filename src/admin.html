@@ -24,7 +24,6 @@
       background-color: #DB2777;
     }
     .modal {
-      display: none;
       position: fixed;
       z-index: 100;
       left: 0;
@@ -149,12 +148,12 @@
           
           <div class="flex flex-col items-center space-y-4">
             <!-- Botón para editar cuenta (redirige a otra página) -->
-            <a href="editarUsuario.html" class="w-40 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300 text-center">
+            <a href="editarUsuario.html" class="mt-4 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">
               Editar mi cuenta
             </a>
             
             <!-- Botón para eliminar cuenta (con confirmación) -->
-            <button id="btn-eliminar-cuenta" class="w-40 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300">
+            <button id="btn-eliminar-cuenta" class="mt-1 mb-6 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition duration-300">
               Eliminar mi cuenta
             </button>
           </div>
@@ -164,13 +163,13 @@
   </main>
 
   <!-- Modal para confirmar eliminación -->
-  <div id="modal-eliminar" class="modal">
+  <div id="modal-eliminar" class="modal hidden">
     <div class="modal-content">
       <h3 class="text-xl font-bold text-pink-700 mb-4">Confirmar eliminación</h3>
       <p class="mb-4">¿Estás seguro que deseas eliminar tu cuenta permanentemente? Todos tus datos se perderán.</p>
-      <div class="flex justify-end space-x-2">
+      <div class="flex justify-between w-full space-x-2">
         <button id="cancelar-eliminar" class="px-4 py-2 rounded-lg border border-pink-600 text-pink-600 hover:bg-pink-50 transition">Cancelar</button>
-        <button id="confirmar-eliminar" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">Eliminar</button>
+        <button id="confirmar-eliminar" class="px-4 py-2 rounded-lg border border-pink-600 text-pink-600 hover:bg-pink-50 transition">Eliminar</button>
       </div>
     </div>
   </div>
