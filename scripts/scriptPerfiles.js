@@ -108,36 +108,51 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Cargar y mostrar perfiles existentes
         async function mostrarPerfilesExistentes() {
+            const usuarioId = localStorage.getItem("usuarioId");
+        
+            const query = `
+                query ObtenerPerfiles($usuarioId: ID!) {
+                    perfiles(usuarioId: $usuarioId) {
+                        id
+                        nombre
+                        imagen
+                    }
+                }
+            `;
+        
             try {
-                const response = await fetch("http://localhost:3000/perfiles/obtener", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "usuario-id": usuarioId,
-                },
+                const response = await fetch("http://localhost:3000/graphql", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        query,
+                        variables: { usuarioId }
+                    })
                 });
-            
-                const perfiles = await response.json();
+        
+                const result = await response.json();
+                const perfiles = result.data.perfiles;
+        
                 const listaContainer = document.getElementById("lista-perfiles");
-            
                 listaContainer.innerHTML = "";
-            
+        
                 perfiles.forEach(perfil => {
-                const perfilDiv = document.createElement("div");
-                perfilDiv.className = "flex items-center gap-2 mb-2";
-            
-                perfilDiv.innerHTML = `
-                    <img src="${perfil.imagen}" alt="${perfil.nombre}" class="w-12 h-12 object-cover rounded-full border-2 border-pink-400">
-                    <span class="text-pink-800 font-medium">${perfil.nombre}</span>
-                `;
-            
-                listaContainer.appendChild(perfilDiv);
+                    const perfilDiv = document.createElement("div");
+                    perfilDiv.className = "flex items-center gap-2 mb-2";
+        
+                    perfilDiv.innerHTML = `
+                        <img src="${perfil.imagen}" alt="${perfil.nombre}" class="w-12 h-12 object-cover rounded-full border-2 border-pink-400">
+                        <span class="text-pink-800 font-medium">${perfil.nombre}</span>
+                    `;
+        
+                    listaContainer.appendChild(perfilDiv);
                 });
             } catch (error) {
                 console.error("Error al cargar los perfiles existentes:", error);
             }
-            }
-                  
+        }                 
         
         mostrarPerfilesExistentes();
         
@@ -283,55 +298,62 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-        async function cargarPerfiles() {
-            try {
-              const response = await fetch("http://localhost:3000/perfiles/obtener", {
-                method: "GET",
+    async function cargarPerfiles() {
+        const usuarioId = localStorage.getItem("usuarioId");
+    
+        const query = `
+            query ObtenerPerfiles($usuarioId: ID!) {
+                perfiles(usuarioId: $usuarioId) {
+                    id
+                    nombre
+                    imagen
+                }
+            }
+        `;
+    
+        try {
+            const response = await fetch("http://localhost:3000/graphql", {
+                method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
-                  "usuario-id": usuarioId,
+                    "Content-Type": "application/json",
                 },
-              });
-          
-              const contentType = response.headers.get("content-type");
-              if (!contentType || !contentType.includes("application/json")) {
-                const text = await response.text();
-                console.error("Respuesta del servidor no es JSON:", text);
-                throw new Error("Respuesta del servidor no es JSON");
-              }
-          
-              const perfiles = await response.json();
-              const profilesContainer = document.getElementById("profiles-container");
-          
-              profilesContainer.innerHTML = "";
-          
-              perfiles.forEach((perfil) => {
-                // Crear div dinámicamente
+                body: JSON.stringify({
+                    query,
+                    variables: { usuarioId }
+                })
+            });
+    
+            const result = await response.json();
+            const perfiles = result.data.perfiles;
+    
+            const profilesContainer = document.getElementById("profiles-container");
+            profilesContainer.innerHTML = "";
+    
+            perfiles.forEach((perfil) => {
                 const div = document.createElement("div");
                 div.className = "profile-card cursor-pointer text-center";
-          
-                // Contenido de la tarjeta
+    
                 div.innerHTML = `
-                  <img src="${perfil.imagen}" alt="${perfil.nombre}" class="profile-image mx-auto">
-                  <p class="mt-4 text-pink-800 font-semibold">${perfil.nombre}</p>
+                    <img src="${perfil.imagen}" alt="${perfil.nombre}" class="profile-image mx-auto">
+                    <p class="mt-4 text-pink-800 font-semibold">${perfil.nombre}</p>
                 `;
-          
+    
                 div.addEventListener("click", () => {
                     perfilSeleccionado = perfil;
                     document.getElementById("modal-perfil-nombre").textContent = `Perfil: ${perfil.nombre}`;
                     document.getElementById("pin-input").value = "";
                     document.getElementById("pin-modal").classList.remove("hidden");
-                  });
-          
+                });
+    
                 profilesContainer.appendChild(div);
-              });
-            } catch (error) {
-              console.error("Error al cargar los perfiles:", error);
-              const profilesContainer = document.getElementById("profiles-container");
-              profilesContainer.innerHTML = '<p class="text-pink-800">Error al cargar los perfiles.</p>';
-            }
-          }
-
+            });
+    
+        } catch (error) {
+            console.error("Error al cargar los perfiles:", error);
+            const profilesContainer = document.getElementById("profiles-container");
+            profilesContainer.innerHTML = '<p class="text-pink-800">Error al cargar los perfiles.</p>';
+        }
+    }    
         // Cargar los perfiles al iniciar la página
         cargarPerfiles();
     }

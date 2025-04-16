@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Función para manejar el envío del formulario de registro
-  async function handleRegistroSubmit(form) {
+  async function handleRegistroSubmit() {
     let valid = true;
 
     // Campos obligatorios
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Verificar contraseñas antes de enviar
+    // Verificar contraseñas
     if (password && repeatPassword && password.value !== repeatPassword.value) {
       mostrarError(repeatPassword, "Las contraseñas no coinciden.");
       valid = false;
@@ -193,14 +193,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Registro exitoso");
-        form.reset();
+        // Mostrar mensaje de éxito y redirigir
+        alert("Registro exitoso. Por favor verifica tu correo electrónico para activar tu cuenta.");
+        window.location.href = "index.html";
       } else {
+        // Mostrar error específico del servidor
         alert(result.error || "Hubo un error en el registro");
       }
     } catch (error) {
+      console.error("Error en el registro:", error);
       alert("Error al conectar con el servidor");
-      console.error(error);
     }
   }
 
