@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/registro', {
+      const response = await fetch('http://localhost:3000/registro/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

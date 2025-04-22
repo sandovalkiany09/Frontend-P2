@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const usuarioId = localStorage.getItem("usuarioId");
+    const usuarioId = obtenerUsuarioIdDesdeToken();
 
     let perfilSeleccionado = null;
 
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Cargar y mostrar perfiles existentes
         async function mostrarPerfilesExistentes() {
-            const usuarioId = localStorage.getItem("usuarioId");
+            const usuarioId = obtenerUsuarioIdDesdeToken();
         
             const query = `
                 query ObtenerPerfiles($usuarioId: ID!) {
@@ -188,10 +188,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 // Actualizar el perfil
                 try {
-                    const response = await fetch("http://localhost:3000/perfiles/actualizar", {
+                    const response = await fetch("http://localhost:3000/perfiles", {
                         method: "PUT",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
                         },
                         body: JSON.stringify({
                             usuarioId: usuarioId,
@@ -222,7 +223,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Verifica si estás en la página "Eliminar Perfil"
     if (window.location.pathname.includes("eliminarPerfil.html")) {
-        console.log("Estás en la página de Eliminar Perfil"); // Verifica que este mensaje aparezca
 
         // Registra el evento de envío del formulario
         const formEliminarPerfil = document.getElementById("form-eliminar-perfil");
@@ -241,10 +241,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             // Enviar la solicitud de eliminación al servidor
             try {
-            const response = await fetch("http://localhost:3000/perfiles/eliminar", {
+            const response = await fetch("http://localhost:3000/perfiles", {
                 method: "DELETE",
                 headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                 usuarioId: usuarioId,
@@ -299,7 +300,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     async function cargarPerfiles() {
-        const usuarioId = localStorage.getItem("usuarioId");
+        const usuarioId = obtenerUsuarioIdDesdeToken();
     
         const query = `
             query ObtenerPerfiles($usuarioId: ID!) {
@@ -388,7 +389,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             const response = await fetch(`http://localhost:3000/registro/validar-pin`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                     id: usuarioId,
@@ -424,7 +426,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             const response = await fetch("http://localhost:3000/perfiles/validar", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                     usuarioId: usuarioId, 
@@ -447,6 +450,22 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    // ==============================
+    // Funcion para sacar usuario del JWT
+    // ==============================
+    function obtenerUsuarioIdDesdeToken() {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+    
+        try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.id; // usuarioId
+        } catch (e) {
+        console.error("Token inválido:", e);
+        return null;
+        }
+    }
+
     // Función para crear el perfil
     async function crearPerfil() {
         const nombre = document.getElementById("nombre").value.trim();
@@ -464,7 +483,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             const response = await fetch("http://localhost:3000/perfiles", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify(perfil)
             });

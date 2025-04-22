@@ -1,47 +1,78 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Elementos comunes
+  // ==============================
+  // Referencias a elementos del DOM
+  // ==============================
   const forms = document.querySelectorAll("form");
   const password = document.getElementById("password");
   const repeatPassword = document.getElementById("repeat-password");
   const fechaNacimientoInput = document.getElementById("fecha-nacimiento");
   const selectPais = document.getElementById("pais");
-  
-  // Elementos específicos para edición (si existen)
+
   const formEditar = document.getElementById("form-editar-cuenta");
   const contraseniaActual = document.getElementById("contrasenia-actual");
   const contraseniaNueva = document.getElementById("contrasenia-nueva");
   const pinActual = document.getElementById("pin-actual");
   const pinNuevo = document.getElementById("pin-nuevo");
 
-  // Función para cargar los países desde la API
+  // ==============================
+  // Función para cargar países desde API externa
+  // ==============================
   async function cargarPaises() {
+    const selectPais = document.getElementById("pais");
+  
+    // Mostrar un valor por defecto mientras carga
+    selectPais.innerHTML = '<option value="">Cargando países...</option>';
+  
     try {
       const response = await fetch('https://restcountries.com/v3.1/all');
+      
+      if (!response.ok) throw new Error("No se pudo obtener la lista de países");
+  
       const paises = await response.json();
-
-      // Limpiar el mensaje de "Cargando países..."
-      selectPais.innerHTML = '';
-
-      // Ordenar los países por nombre
+  
+      // Limpiar el select
+      selectPais.innerHTML = '<option value="">Selecciona un país</option>';
+  
+      // Ordenar alfabéticamente
       paises.sort((a, b) => a.name.common.localeCompare(b.name.common));
-
-      // Agregar cada país al select
+  
+      // Insertar países
       paises.forEach(pais => {
         const option = document.createElement('option');
-        option.value = pais.cca2;
+        option.value = pais.cca2 || pais.name.common;
         option.textContent = pais.name.common;
         selectPais.appendChild(option);
       });
     } catch (error) {
       console.error('Error al cargar los países:', error);
-      selectPais.innerHTML = '<option value="">Error al cargar los países</option>';
+      selectPais.innerHTML = '<option value="">Error al cargar países</option>';
     }
   }
 
-  // Función para mostrar mensajes de error
+  // ==============================
+  // Funcion para sacar usuario del JWT
+  // ==============================
+  function obtenerUsuarioIdDesdeToken() {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+  
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id; // usuarioId
+    } catch (e) {
+      console.error("Token inválido:", e);
+      return null;
+    }
+  }
+  
+  
+
+  // ==============================
+  // Funciones auxiliares de validación
+  // ==============================
   function mostrarError(input, mensaje) {
     let errorMensaje = input.nextElementSibling;
-    
+
     if (!errorMensaje || !errorMensaje.classList.contains("error-text")) {
       errorMensaje = document.createElement("p");
       errorMensaje.className = "error-text text-red-500 text-sm mt-1";
@@ -52,16 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
     input.classList.add("border-red-500");
   }
 
-  // Función para limpiar errores
   function limpiarError(input) {
-    let errorMensaje = input.nextElementSibling;
+    const errorMensaje = input.nextElementSibling;
     if (errorMensaje && errorMensaje.classList.contains("error-text")) {
       errorMensaje.remove();
     }
     input.classList.remove("border-red-500");
   }
 
-  // Función para validar edad (18+ años)
   function validarEdad(fechaInput) {
     const fechaIngresada = new Date(fechaInput.value);
     const hoy = new Date();
@@ -82,10 +111,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Llamar a la función cuando la página cargue
-  cargarPaises();
-
-  // Validar contraseñas en tiempo real (si existen los elementos)
+  // ==============================
+  // Validaciones en tiempo real
+  // ==============================
   if (repeatPassword && password) {
     repeatPassword.addEventListener("input", function () {
       if (password.value !== repeatPassword.value) {
@@ -96,39 +124,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Validar edad en tiempo real (si existe el elemento)
   if (fechaNacimientoInput) {
     fechaNacimientoInput.addEventListener("input", function () {
       validarEdad(fechaNacimientoInput);
     });
   }
 
-  // Configurar el formulario de registro si existe
+  // ==============================
+  // Manejo del formulario de registro
+  // ==============================
   forms.forEach(form => {
     if (form.id !== "form-editar-cuenta") {
       form.addEventListener("submit", async function (event) {
         event.preventDefault();
-        handleRegistroSubmit(form);
+        await handleRegistroSubmit();
       });
     }
   });
 
-  // Configurar el formulario de edición si existe
-  if (formEditar) {
-    // Cargar datos del usuario al iniciar
-    cargarDatosUsuario();
-    
-    formEditar.addEventListener("submit", async function (event) {
-      event.preventDefault();
-      handleEdicionSubmit();
-    });
-  }
-
-  // Función para manejar el envío del formulario de registro
   async function handleRegistroSubmit() {
     let valid = true;
 
-    // Campos obligatorios
     const campos = [
       { id: "nombre", mensaje: "El nombre es obligatorio." },
       { id: "email", mensaje: "El correo electrónico es obligatorio." },
@@ -141,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     campos.forEach(campo => {
       const input = document.getElementById(campo.id);
-      if (input.value.trim() === "" || (campo.id === "pin" && input.value.length !== 6)) {
+      if (!input.value.trim() || (campo.id === "pin" && input.value.length !== 6)) {
         mostrarError(input, campo.mensaje);
         valid = false;
       } else {
@@ -149,27 +165,23 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Verificar contraseñas
     if (password && repeatPassword && password.value !== repeatPassword.value) {
       mostrarError(repeatPassword, "Las contraseñas no coinciden.");
       valid = false;
     }
 
-    // Validar edad mínima de 18 años
     if (fechaNacimientoInput && !validarEdad(fechaNacimientoInput)) {
       valid = false;
     }
 
     if (!valid) return;
 
-    // Convertir la fecha al formato correcto (DD-MM-YYYY)
     const fechaIngresada = new Date(fechaNacimientoInput.value);
     const dia = String(fechaIngresada.getDate()).padStart(2, '0');
     const mes = String(fechaIngresada.getMonth() + 1).padStart(2, '0');
     const anio = fechaIngresada.getFullYear();
     const fechaCorrecta = `${dia}-${mes}-${anio}`;
 
-    // Enviar datos al backend
     const formData = {
       correo: document.getElementById('email').value,
       contrasenia: document.getElementById('password').value,
@@ -184,71 +196,78 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const response = await fetch("http://localhost:3000/registro", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        // Mostrar mensaje de éxito y redirigir
-        alert("Registro exitoso. Por favor verifica tu correo electrónico para activar tu cuenta.");
+        alert("Registro exitoso. Inicia sesión.");
         window.location.href = "index.html";
       } else {
-        // Mostrar error específico del servidor
-        alert(result.error || "Hubo un error en el registro");
+        alert(result.error || "Error durante el registro");
       }
     } catch (error) {
       console.error("Error en el registro:", error);
-      alert("Error al conectar con el servidor");
+      alert("No se pudo conectar al servidor.");
     }
   }
 
-  // Función para cargar datos del usuario para actualizar
+  // ==============================
+  // Formulario de edición de usuario
+  // ==============================
+  if (formEditar) {
+    cargarDatosUsuario();
+    formEditar.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      await handleEdicionSubmit();
+    });
+  }
+
   async function cargarDatosUsuario() {
-    const usuarioId = localStorage.getItem('usuarioId');
+    const usuarioId = obtenerUsuarioIdDesdeToken();
     if (!usuarioId) {
-      alert('No se encontró información de usuario. Por favor inicia sesión nuevamente.');
+      alert("Token no válido. Inicia sesión nuevamente.");
       window.location.href = 'index.html';
       return;
     }
-
+  
     try {
-      const response = await fetch(`http://localhost:3000/registro?id=${usuarioId}`);
-      if (!response.ok) throw new Error('Error al cargar datos del usuario');
-      
+      const response = await fetch("http://localhost:3000/registro/obtener", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ id: usuarioId }) 
+      });
+  
+      if (!response.ok) throw new Error("No se pudieron cargar los datos");
+  
       const usuario = await response.json();
-
-      // Rellenar formulario con datos del usuario
       document.getElementById('nombre').value = usuario.nombre || '';
       document.getElementById('apellidos').value = usuario.apellidos || '';
       document.getElementById('correo').value = usuario.correo || '';
       document.getElementById('telefono').value = usuario.telefono || '';
-
-      // Formatear fecha de nacimiento
+  
       if (usuario.fechaNacimiento) {
         const fecha = new Date(usuario.fechaNacimiento);
-        const fechaFormateada = fecha.toISOString().split('T')[0];
-        document.getElementById('fecha-nacimiento').value = fechaFormateada;
+        document.getElementById('fecha-nacimiento').value = fecha.toISOString().split('T')[0];
       }
-
-      // Establecer país del usuario
+  
       if (usuario.pais) {
         document.getElementById('pais').value = usuario.pais;
       }
     } catch (error) {
-      console.error('Error al cargar datos del usuario:', error);
-      alert('Error al cargar tus datos. Por favor recarga la página.');
+      console.error("Error al cargar el usuario:", error);
+      alert("Error al cargar tus datos");
     }
-  }
+  }  
 
-  // Función para manejar el envío del formulario de edición
   async function handleEdicionSubmit() {
     let valid = true;
 
-    // Validar campos requeridos
     const camposRequeridos = [
       { id: "nombre", mensaje: "El nombre es obligatorio." },
       { id: "apellidos", mensaje: "Los apellidos son obligatorios." },
@@ -269,32 +288,31 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Validar nueva contraseña si se proporciona
     if (contraseniaNueva.value && contraseniaNueva.value.length < 8) {
       mostrarError(contraseniaNueva, "La contraseña debe tener al menos 8 caracteres");
       valid = false;
     }
 
-    // Validar nuevo PIN si se proporciona
     if (pinNuevo.value && pinNuevo.value.length !== 6) {
       mostrarError(pinNuevo, "El PIN debe tener 6 dígitos");
       valid = false;
     }
 
-    // Validar edad
     if (!validarEdad(document.getElementById('fecha-nacimiento'))) {
       valid = false;
     }
 
     if (!valid) return;
 
-    // Preparar datos para enviar
+    const usuarioId = obtenerUsuarioIdDesdeToken();
+
     const datosActualizados = {
+      id: usuarioId,
       correo: document.getElementById('correo').value,
-      contrasenia: document.getElementById('contrasenia-actual').value,
+      contrasenia: contraseniaActual.value,
       contraseniaNueva: contraseniaNueva.value || undefined,
       telefono: document.getElementById('telefono').value,
-      pin: document.getElementById('pin-actual').value,
+      pin: pinActual.value,
       pinNuevo: pinNuevo.value || undefined,
       nombre: document.getElementById('nombre').value,
       apellidos: document.getElementById('apellidos').value,
@@ -302,28 +320,30 @@ document.addEventListener("DOMContentLoaded", function () {
       fechaNacimiento: document.getElementById('fecha-nacimiento').value
     };
 
-    // Enviar datos al backend
     try {
-      const usuarioId = localStorage.getItem('usuarioId');
-      const response = await fetch(`http://localhost:3000/registro?id=${usuarioId}`, {
+      const response = await fetch(`http://localhost:3000/registro`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+         },
         body: JSON.stringify(datosActualizados)
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        alert("Tus cambios se han guardado correctamente");
+        alert("Tus cambios han sido guardados correctamente");
         window.location.href = 'admin.html';
       } else {
         alert(result.error || "Hubo un error al actualizar tu perfil");
       }
     } catch (error) {
-      alert("Error al conectar con el servidor");
-      console.error(error);
+      console.error("Error al actualizar:", error);
+      alert("No se pudo conectar con el servidor.");
     }
   }
+
+  // Inicialización
+  cargarPaises();
 });
