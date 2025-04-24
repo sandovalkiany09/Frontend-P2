@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             `;
         
             try {
-                const response = await fetch("http://localhost:3000/graphql", {
+                const response = await fetch("http://localhost:4000/graphql", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         `;
     
         try {
-            const response = await fetch("http://localhost:3000/graphql", {
+            const response = await fetch("http://localhost:4000/graphql", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
