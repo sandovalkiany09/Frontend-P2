@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const usuarioId = localStorage.getItem("usuarioId");
+    const usuarioId = obtenerUsuarioIdDesdeToken();
+
     const selectPlaylist = document.getElementById("selectPlaylist");
     const videosContainer = document.getElementById("videos-container");
     const btnAgregarVideo = document.getElementById("btn-agregar-video");
@@ -11,6 +12,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const pinInput = document.getElementById("pin-input-videos");
     const confirmarPinBtn = document.getElementById("confirmar-pin-video");
     const opciones = document.getElementById("opciones-videos");
+
+    // ==============================
+    // Funcion para sacar usuario del JWT
+    // ==============================
+    function obtenerUsuarioIdDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+  
+      try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id; // usuarioId
+      } catch (e) {
+      console.error("Token inválido:", e);
+      return null;
+      }
+    }
   
     if (accederBtn && confirmarPinBtn) {
       accederBtn.addEventListener("click", () => {
@@ -24,7 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const response = await fetch("http://localhost:3000/registro/validar-pin", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+             },
             body: JSON.stringify({ id: usuarioId, pin: String(pinIngresado) })
           });
   
@@ -65,7 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async function cargarPlaylists() {
       try {
         const res = await fetch("http://localhost:3000/playlist", {
-          headers: { "usuario-id": usuarioId }
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
         });
         const playlists = await res.json();
   
@@ -82,21 +105,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     async function cargarVideos(playlistId) {
+      const query = `
+        query ObtenerVideos($playlistId: ID!) {
+          videos(playlistId: $playlistId) {
+            id
+            nombre
+            descripcion
+            url
+          }
+        }
+      `;
+    
       try {
-        const res = await fetch(`http://localhost:3000/videos/${playlistId}`);
-        const videos = await res.json();
-  
+        const response = await fetch("http://localhost:4000/graphql", { 
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            query,
+            variables: { playlistId }
+          })
+        });
+    
+        const result = await response.json();
+    
+        const videos = result.data?.videos || [];
+    
+        const videosContainer = document.getElementById("videos-container"); 
         videosContainer.innerHTML = "";
-  
+    
         if (videos.length === 0) {
           videosContainer.innerHTML = '<p class="text-pink-600">No hay videos aún.</p>';
           return;
         }
-  
+    
         videos.forEach(v => {
           const div = document.createElement("div");
           div.className = "relative bg-pink-100 p-4 rounded shadow flex flex-col justify-between";
-  
+    
           div.innerHTML = `
             <div>
               <h3 class="text-lg font-semibold text-pink-700">${v.nombre}</h3>
@@ -104,17 +151,17 @@ document.addEventListener("DOMContentLoaded", () => {
               <a href="${v.url}" target="_blank" class="text-blue-500 underline">Ver en YouTube</a>
             </div>
             <div class="flex justify-end mt-4 gap-4">
-              <button onclick="window.location.href='editarVideo.html?id=${v._id}'" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Editar ✏️</button>
-              <button onclick="eliminarVideo('${v._id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
+              <button onclick="window.location.href='editarVideo.html?id=${v.id}'" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Editar ✏️</button>
+              <button onclick="eliminarVideo('${v.id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
             </div>
           `;
-  
+    
           videosContainer.appendChild(div);
         });
-      } catch (err) {
-        console.error("Error al cargar videos:", err);
+      } catch (error) {
+        console.error("Error al cargar videos:", error);
       }
-    }
+    }    
   
     if (btnGuardarVideo) {
       btnGuardarVideo.addEventListener("click", async () => {

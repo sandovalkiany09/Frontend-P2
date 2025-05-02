@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const usuarioId = localStorage.getItem("usuarioId");
+    const usuarioId = obtenerUsuarioIdDesdeToken();
   
     // VALIDACIÓN PIN PARA ACCEDER A LA SECCIÓN
     const accederBtn = document.getElementById("acceder-playlists-btn");
@@ -7,6 +7,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const pinInput = document.getElementById("pin-input-playlists");
     const confirmarPinBtn = document.getElementById("confirmar-pin-playlists");
     const opciones = document.getElementById("opciones-playlists");
+
+    // Función para obtener perfilId desde el token JWT almacenado
+    function obtenerPerfilIdDesdeToken() {
+      const token = localStorage.getItem("perfilToken");
+      if (!token) return null;
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.perfilId; 
+      } catch (error) {
+        console.error("Token de perfil inválido:", error);
+        return null;
+      }
+    }
+
+    // ==============================
+    // Funcion para sacar usuario del JWT
+    // ==============================
+    function obtenerUsuarioIdDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+  
+      try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id; // usuarioId
+      } catch (e) {
+      console.error("Token inválido:", e);
+      return null;
+      }
+    }
   
     if (accederBtn && pinContainer && confirmarPinBtn && opciones) {
       accederBtn.addEventListener("click", () => {
@@ -20,7 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const response = await fetch("http://localhost:3000/registro/validar-pin", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}` 
+            },
             body: JSON.stringify({ id: usuarioId, pin: String(pinIngresado) }),
           });
   
@@ -60,46 +93,81 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   
       async function cargarPerfiles() {
+        const usuarioId = obtenerUsuarioIdDesdeToken();
+        if (!usuarioId) {
+          console.error("No se pudo extraer el ID del usuario desde el token.");
+          alert("No has iniciado sesión.");
+          return;
+        }
+      
+        const query = `
+          query ObtenerPerfiles($usuarioId: ID!) {
+            perfiles(usuarioId: $usuarioId) {
+              id
+              nombre
+              imagen
+            }
+          }
+        `;
+      
         try {
-          const res = await fetch("http://localhost:3000/perfiles/obtener", {
-            headers: { "usuario-id": usuarioId },
+          const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              query,
+              variables: { usuarioId }
+            })
           });
-          const perfiles = await res.json();
-  
+      
+          const result = await response.json();
+      
+          if (!result.data || !result.data.perfiles) {
+            throw new Error("No se pudieron obtener los perfiles");
+          }
+      
+          const perfiles = result.data.perfiles;
           perfilesSelect.innerHTML = "";
           perfiles.forEach(p => {
             const option = document.createElement("option");
-            option.value = p._id;
+            option.value = p.id;
             option.textContent = p.nombre;
             perfilesSelect.appendChild(option);
           });
         } catch (err) {
-          console.error("Error cargando perfiles:", err);
+          console.error("Error cargando perfiles con GraphQL:", err);
+          alert("Hubo un error al cargar los perfiles.");
         }
-      }
+      }     
   
       async function cargarPlaylists() {
-        try {
+        try {      
           const res = await fetch("http://localhost:3000/playlist", {
-            headers: { "usuario-id": usuarioId },
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
           });
+      
           const playlists = await res.json();
-  
+      
           playlistsContainer.innerHTML = "";
           playlists.forEach(p => {
             playlistsContainer.innerHTML += `
               <div class="bg-pink-100 p-4 rounded shadow">
                 <h3 class="text-lg font-semibold text-pink-700">${p.nombre}</h3>
                 <p class="text-pink-500">Videos: ${p.cantidadVideos || 0}</p>
-                <button onclick="window.location.href='editarPlaylist.html?id=${p._id}'" class="bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Editar ✏️</button>
-                <button onclick="eliminarPlaylist('${p._id}')" class= "bg-pink-600 text-white px-4 py-1,5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
+                <button onclick="editarPlaylist('${p._id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Editar ✏️</button>
+                <button onclick="eliminarPlaylist('${p._id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
               </div>
             `;
           });
         } catch (err) {
           console.error("Error cargando playlists:", err);
         }
-      }
+      }      
   
       btnGuardar.addEventListener("click", async () => {
         const nombre = document.getElementById("nombre").value.trim();
@@ -109,7 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const res = await fetch("http://localhost:3000/playlist", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+             },
             body: JSON.stringify({ usuarioId, nombre, perfilesAsociados }),
           });
   
@@ -126,15 +196,23 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   
       window.editarPlaylist = (id) => {
-        window.location.href = `editarPlaylist.html?id=${id}`;
+        localStorage.setItem("playlistId", id); 
+        window.location.href = "editarPlaylist.html";
       };
+      
   
       window.eliminarPlaylist = async (id) => {
         if (!confirm("¿Eliminar esta playlist?")) return;
         try {
-          const res = await fetch(`http://localhost:3000/playlist/${id}`, {
+          const res = await fetch("http://localhost:3000/playlist", {
             method: "DELETE",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+           },
+            body: JSON.stringify({ id }) 
           });
+      
           const data = await res.json();
           if (res.ok) {
             alert("Eliminada");
@@ -150,85 +228,103 @@ document.addEventListener("DOMContentLoaded", () => {
       cargarPerfiles();
       cargarPlaylists();
     }
-  
-// LÓGICA PARA editarPlaylist.html
-if (window.location.pathname.includes("editarPlaylist.html")) {
-  const usuarioId = localStorage.getItem("usuarioId"); 
-  const id = new URLSearchParams(window.location.search).get("id");
-  const nombreInput = document.getElementById("nombre");
-  const perfilesSelect = document.getElementById("perfiles");
-  const btnActualizar = document.getElementById("actualizarPlaylist");
 
-  async function cargarPlaylist() {
-    try {
-      const res = await fetch(`http://localhost:3000/playlist/${id}`);
-      const data = await res.json();
+    // LÓGICA PARA editarPlaylist.html
+    if (window.location.pathname.includes("editarPlaylist.html")) {
+      const usuarioId = obtenerUsuarioIdDesdeToken(); 
+      const id = localStorage.getItem("playlistId");
+      if (!id) {
+        alert("No se encontró la playlist a editar.");
+        window.location.href = "gestionarPlaylists.html";
+        return;
+      }
 
-      // Establecer el nombre actual de la playlist
-      nombreInput.value = data.nombre;
+      const nombreInput = document.getElementById("nombre");
+      const perfilesSelect = document.getElementById("perfiles");
+      const btnActualizar = document.getElementById("actualizarPlaylist");
 
-      // Obtener los perfiles del usuario
-      const perfilesRes = await fetch("http://localhost:3000/perfiles/obtener", {
-        headers: { "usuario-id": usuarioId },
-      });
-      const perfiles = await perfilesRes.json();
+      async function cargarPlaylist() {
+        try {
+          const res = await fetch("http://localhost:3000/playlist/detalles", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json();
 
-      // Limpiar y cargar las opciones
-      perfilesSelect.innerHTML = "";
+          nombreInput.value = data.nombre;
 
-      // Obtener solo los IDs asociados (por si vienen como objetos)
-      const idsAsociados = data.perfilesAsociados.map(p =>
-        typeof p === "object" ? p._id : p
-      );
+          const perfilesRes = await fetch("http://localhost:3000/playlist/perfiles-asociados", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ id })
+          });
 
-      perfiles.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p._id;
-        option.textContent = p.nombre;
+          const dataPerfiles = await perfilesRes.json();
+          const perfiles = dataPerfiles.perfiles;
 
-        // Marcar como seleccionado si está asociado
-        if (idsAsociados.includes(p._id)) {
-          option.selected = true;
+          perfilesSelect.innerHTML = "";
+
+          const idsAsociados = data.perfilesAsociados.map(p =>
+            typeof p === "object" ? p._id : p
+          );
+
+          perfiles.forEach(p => {
+            const option = document.createElement("option");
+            option.value = p._id;
+            option.textContent = p.nombre;
+
+            if (idsAsociados.includes(p._id)) {
+              option.selected = true;
+            }
+
+            perfilesSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error cargando para editar", err);
+        }
+      }
+
+      btnActualizar.addEventListener("click", async () => {
+        const nombre = nombreInput.value.trim();
+        const perfilesAsociados = Array.from(perfilesSelect.selectedOptions).map(o => o.value);
+
+        if (!nombre || perfilesAsociados.length === 0) {
+          alert("Campos obligatorios");
+          return;
         }
 
-        perfilesSelect.appendChild(option);
+        try {
+          const res = await fetch("http://localhost:3000/playlist", {
+            method: "PUT",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ id, nombre, perfilesAsociados })
+          });
+
+          if (res.ok) {
+            alert("Actualizado");
+            localStorage.removeItem("playlistId");
+            window.location.href = "gestionarPlaylists.html";
+          } else {
+            const data = await res.json();
+            alert(data.error || "Error al actualizar");
+          }
+        } catch (err) {
+          console.error(err);
+        }
       });
-    } catch (err) {
-      console.error("Error cargando para editar", err);
-    }
-  }
 
-  // Acción al hacer clic en actualizar
-  btnActualizar.addEventListener("click", async () => {
-    const nombre = nombreInput.value.trim();
-    const perfilesAsociados = Array.from(perfilesSelect.selectedOptions).map(o => o.value);
-
-    if (!nombre || perfilesAsociados.length === 0) {
-      alert("Campos obligatorios");
-      return;
+      cargarPlaylist();
     }
 
-    try {
-      const res = await fetch(`http://localhost:3000/playlist/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, perfilesAsociados }),
-      });
-
-      if (res.ok) {
-        alert("Actualizado");
-        window.location.href = "gestionarPlaylists.html";
-      } else {
-        const data = await res.json();
-        alert(data.error || "Error al actualizar");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
-
-  // Cargar la información al entrar a la página
-  cargarPlaylist();
-}
-  });
+});
   

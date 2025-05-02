@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         id
                         nombre
                         imagen
+                        pin
                     }
                 }
             `;
@@ -289,14 +290,31 @@ document.addEventListener("DOMContentLoaded", async function () {
         perfilSeleccionado = null;
     });
 
-    document.getElementById("confirmar-pin").addEventListener("click", () => {
+    document.getElementById("confirmar-pin").addEventListener("click", async () => {
         const pinIngresado = document.getElementById("pin-input").value;
-        if (perfilSeleccionado && pinIngresado === perfilSeleccionado.pin) {
-        localStorage.setItem("perfilActivo", JSON.stringify(perfilSeleccionado));
-        window.location.href = "principal.html";
-        } else {
-        alert("PIN incorrecto.");
-        }
+
+        try {
+            const response = await fetch("http://localhost:3000/perfiles/validar-pin", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                perfilId: perfilSeleccionado.id,
+                pin: pinIngresado,
+              }),
+            });
+          
+            const result = await response.json();
+          
+            if (response.ok) {
+              localStorage.setItem("perfilToken", result.token); // Guardamos token JWT
+              window.location.href = "principal.html";
+            } else {
+              alert(result.error || "PIN incorrecto");
+            }
+          } catch (err) {
+            console.error("Error validando PIN:", err);
+            alert("No se pudo validar el PIN");
+          }
     });
 
     async function cargarPerfiles() {
@@ -308,6 +326,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     id
                     nombre
                     imagen
+                    pin
                 }
             }
         `;
@@ -502,6 +521,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             alert("Hubo un error al crear el perfil.");
         }
     }
+
+    
 
     // Event listeners para los botones de administración
     document.getElementById("add-profile").addEventListener("click", function () {
