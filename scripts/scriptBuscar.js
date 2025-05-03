@@ -1,15 +1,20 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const perfilId = obtenerPerfilIdDesdeToken();
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const playlistsContainer = document.getElementById('playlists-container');
-    
-    // Obtener solo el ID del perfil
-    let perfilId = localStorage.getItem('perfilActivo');
-    try {
-        const perfilData = JSON.parse(perfilId);
-        perfilId = perfilData?._id || perfilId;
-    } catch (e) {
-        // Si ya era solo el ID, lo dejamos igual
+
+    // Función para obtener perfilId desde el token JWT almacenado
+    function obtenerPerfilIdDesdeToken() {
+        const token = localStorage.getItem("perfilToken");
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.perfilId; 
+        } catch (error) {
+            console.error("Token de perfil inválido:", error);
+            return null;
+        }
     }
 
     function mostrarMensaje(mensaje, esError = false) {
@@ -22,34 +27,59 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function buscarVideos(terminoBusqueda) {
         try {
+            const perfilId = obtenerPerfilIdDesdeToken();
             if (!perfilId) {
-                mostrarMensaje("No hay perfil activo seleccionado", true);
-                return;
+            mostrarMensaje("No hay perfil activo seleccionado", true);
+            return;
             }
-
+        
             terminoBusqueda = terminoBusqueda.trim();
             if (!terminoBusqueda) {
-                mostrarMensaje("Por favor, ingresa un término de búsqueda");
-                return;
+            mostrarMensaje("Por favor, ingresa un término de búsqueda");
+            return;
             }
-
-            const url = new URL(`http://localhost:3000/buscar/perfil/${perfilId}`);
-            url.searchParams.append('query', terminoBusqueda);
-
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Error en la búsqueda: ${errorText.substring(0, 100)}`);
+        
+            const query = `
+            query BuscarVideos($perfilId: ID!, $query: String!) {
+                buscarVideosPorPerfil(perfilId: $perfilId, query: $query) {
+                id
+                nombre
+                descripcion
+                url
+                listaNombre
+                }
             }
-
-            const resultados = await response.json();
+            `;
+        
+            const response = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                query,
+                variables: {
+                perfilId,
+                query: terminoBusqueda
+                }
+            })
+            });
+        
+            const result = await response.json();
+        
+            if (result.errors) {
+            console.error("Errores GraphQL:", result.errors);
+            mostrarMensaje("Ocurrió un error en el servidor GraphQL", true);
+            return;
+            }
+        
+            const resultados = result.data?.buscarVideosPorPerfil || [];
             mostrarResultados(resultados, terminoBusqueda);
+        
         } catch (error) {
             console.error("Error completo:", error);
             mostrarMensaje("Ocurrió un error al realizar la búsqueda", true);
         }
     }
+      
 
     function mostrarResultados(videos, terminoBusqueda = '') {
         playlistsContainer.innerHTML = '';
@@ -106,7 +136,4 @@ document.addEventListener("DOMContentLoaded", function() {
             buscarVideos(e.target.value);
         }, 300); // Espera 300ms después de escribir
     });
-
-    // Mensaje inicial
-    mostrarMensaje("Ingresa lo que deseas buscar y se mostrarán resultados automáticamente");
 });

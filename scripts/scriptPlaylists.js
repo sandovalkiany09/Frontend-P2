@@ -143,31 +143,51 @@ document.addEventListener("DOMContentLoaded", () => {
       }     
   
       async function cargarPlaylists() {
-        try {      
-          const res = await fetch("http://localhost:3000/playlist", {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+        const usuarioId = obtenerUsuarioIdDesdeToken();
+        if (!usuarioId) return alert("Usuario no válido. Inicia sesión nuevamente.");
+      
+        const query = `
+          query ObtenerPlaylists($usuarioId: ID!) {
+            playlists(usuarioId: $usuarioId) {
+              id
+              nombre
+              cantidadVideos
             }
+          }
+        `;
+      
+        try {
+          const res = await fetch("http://localhost:4000/graphql", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              query,
+              variables: { usuarioId }
+            })
           });
       
-          const playlists = await res.json();
+          const result = await res.json();
+          const playlists = result.data.playlists;
       
           playlistsContainer.innerHTML = "";
+      
           playlists.forEach(p => {
             playlistsContainer.innerHTML += `
               <div class="bg-pink-100 p-4 rounded shadow">
                 <h3 class="text-lg font-semibold text-pink-700">${p.nombre}</h3>
                 <p class="text-pink-500">Videos: ${p.cantidadVideos || 0}</p>
-                <button onclick="editarPlaylist('${p._id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Editar ✏️</button>
-                <button onclick="eliminarPlaylist('${p._id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
+                <button onclick="editarPlaylist('${p.id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Editar ✏️</button>
+                <button onclick="eliminarPlaylist('${p.id}')" class="bg-pink-600 text-white px-4 py-1.5 rounded hover:bg-pink-700">Eliminar 🗑️</button>
               </div>
             `;
           });
+      
         } catch (err) {
           console.error("Error cargando playlists:", err);
         }
-      }      
+      }     
   
       btnGuardar.addEventListener("click", async () => {
         const nombre = document.getElementById("nombre").value.trim();

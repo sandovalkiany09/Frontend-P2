@@ -84,18 +84,34 @@ document.addEventListener("DOMContentLoaded", () => {
   
     async function cargarPlaylists() {
       try {
-        const res = await fetch("http://localhost:3000/playlist", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        const usuarioId = obtenerUsuarioIdDesdeToken(); // asegurate de tener esta función implementada
+        const query = `
+          query ObtenerPlaylists($usuarioId: ID!) {
+            playlists(usuarioId: $usuarioId) {
+              id
+              nombre
+            }
           }
+        `;
+    
+        const res = await fetch("http://localhost:4000/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            query,
+            variables: { usuarioId }
+          })
         });
-        const playlists = await res.json();
-  
+    
+        const result = await res.json();
+        const playlists = result.data?.playlists || [];
+    
         selectPlaylist.innerHTML = '<option value="">-- Selecciona --</option>';
         playlists.forEach(p => {
           const option = document.createElement("option");
-          option.value = p._id;
+          option.value = p.id;
           option.textContent = p.nombre;
           selectPlaylist.appendChild(option);
         });
