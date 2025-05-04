@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (response.ok && result.token) {
         localStorage.setItem("token", result.token);
-        window.location.href = 'inicio.html';
+        window.location.href = 'verificarSms.html';
       } else {
         mostrarError(result.error || 'Usuario o contraseña inválida.');
       }

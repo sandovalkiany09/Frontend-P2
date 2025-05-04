@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Cuenta</title>
+  <link href="./output.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+<body class="bg-pink-50 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <!-- Título con fuente personalizada -->
+    <div class="flex items-center justify-center mb-6">
+      <img src="https://cdn.pixabay.com/photo/2020/11/01/04/21/youtube-5702837_1280.png" alt="Logo KidsTube" class="w-12 h-12 mr-2">
+      <h1 class="text-4xl font-pacifico text-pink-600">KidsTube</h1>
+    </div>
+    <!-- Mensaje de verificación -->
+    <p class="text-center text-pink-600 mb-4">Haz clic en el botón para verificar tu cuenta.</p>
+    <button
+      id="verifyBtn"
+      class="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-300"
+    >
+      Verificar Cuenta
+    </button>
+    <!-- Mensaje de error -->
+    <div id="error-message" class="hidden text-red-600 text-center mt-4"></div>
+    <div class="mt-4 text-center">
+      <a href="index.html" class="text-pink-600 hover:text-pink-700">Volver al inicio de sesión</a>
+    </div>
+  </div>
+  <script src="../scripts/scriptVerificar.js"></script>
+</body>
+</html>

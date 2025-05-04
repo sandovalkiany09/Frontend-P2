@@ -65,8 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   
-  
-
   // ==============================
   // Funciones auxiliares de validación
   // ==============================
@@ -203,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Registro exitoso. Inicia sesión.");
+        alert("Registro exitoso. Revisa tu correo para verificar la cuenta.");
         window.location.href = "index.html";
       } else {
         alert(result.error || "Error durante el registro");
@@ -325,8 +323,8 @@ document.addEventListener("DOMContentLoaded", function () {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-         },
+          "Authorization": `Bearer ${localStorage.getItem("token")}` 
+        },
         body: JSON.stringify(datosActualizados)
       });
 
@@ -334,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (response.ok) {
         alert("Tus cambios han sido guardados correctamente");
-        window.location.href = 'admin.html';
+        window.location.href = 'index.html';
       } else {
         alert(result.error || "Hubo un error al actualizar tu perfil");
       }
