@@ -13,6 +13,70 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmarPinBtn = document.getElementById("confirmar-pin-video");
     const opciones = document.getElementById("opciones-videos");
 
+    const btnBuscarYoutube = document.getElementById("btnBuscarYoutube");
+    const inputBusqueda = document.getElementById("busquedaYoutube");
+    const youtubeResultados = document.getElementById("youtubeResultados");
+
+    const YOUTUBE_API_KEY ="AIzaSyBVPyuW3q8v33fCOeNNChr6X-8jEIUX5Os";
+
+    btnBuscarYoutube.addEventListener("click", async () => {
+      const termino = inputBusqueda.value.trim();
+      if (!termino) return alert("Escribe un término para buscar.");
+    
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(termino)}&maxResults=6&key=${YOUTUBE_API_KEY}`);
+        const data = await res.json();
+    
+        youtubeResultados.innerHTML = ""; // limpia resultados anteriores
+    
+        data.items.forEach(video => {
+          const videoId = video.id.videoId;
+          const titulo = video.snippet.title;
+          const descripcion = video.snippet.description;
+          const thumbnail = video.snippet.thumbnails.medium.url;
+    
+          const card = document.createElement("div");
+          card.className = "bg-white rounded shadow p-4";
+    
+          card.innerHTML = `
+            <img src="${thumbnail}" alt="${titulo}" class="mb-2 w-full rounded">
+            <h3 class="font-bold text-pink-700">${titulo}</h3>
+            <p class="text-sm mb-2">${descripcion.slice(0, 100)}...</p>
+            <button class="bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600 w-full"
+                    data-id="${videoId}"
+                    data-title="${titulo}"
+                    data-description="${descripcion}">
+              Seleccionar
+            </button>
+          `;
+    
+          youtubeResultados.appendChild(card);
+        });
+    
+        // Evento para seleccionar un video
+        document.querySelectorAll("#youtubeResultados button").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            const videoId = e.target.getAttribute("data-id");
+            const titulo = e.target.getAttribute("data-title");
+            const descripcion = e.target.getAttribute("data-description");
+    
+            // Rellena el formulario automáticamente
+            document.getElementById("video-nombre").value = titulo;
+            document.getElementById("video-url").value = `https://www.youtube.com/watch?v=${videoId}`;
+            document.getElementById("video-descripcion").value = descripcion;
+    
+            // Muestra el formulario si estaba oculto
+            formVideo.classList.remove("hidden");
+            window.scrollTo({ top: formVideo.offsetTop, behavior: 'smooth' });
+          });
+        });
+    
+      } catch (err) {
+        console.error("Error al buscar videos en YouTube:", err);
+        alert("Error al buscar en YouTube.");
+      }
+    });
+
     // ==============================
     // Funcion para sacar usuario del JWT
     // ==============================
