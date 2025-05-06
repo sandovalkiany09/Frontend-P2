@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function mostrarMensaje(mensaje, esError = false) {
-        playlistsContainer.innerHTML = `
+        playlistsContainer.innerHTML = ` 
             <p class="${esError ? 'text-red-600' : 'text-pink-800'} text-center py-4">
                 ${mensaje}
             </p>
@@ -32,54 +32,53 @@ document.addEventListener("DOMContentLoaded", function() {
             mostrarMensaje("No hay perfil activo seleccionado", true);
             return;
             }
-        
+
             terminoBusqueda = terminoBusqueda.trim();
             if (!terminoBusqueda) {
             mostrarMensaje("Por favor, ingresa un término de búsqueda");
             return;
             }
-        
+
             const query = `
-            query BuscarVideos($perfilId: ID!, $query: String!) {
-                buscarVideosPorPerfil(perfilId: $perfilId, query: $query) {
-                id
-                nombre
-                descripcion
-                url
-                listaNombre
+                query BuscarVideos($perfilId: ID!, $query: String!) {
+                    buscarVideosPorPerfil(perfilId: $perfilId, query: $query) {
+                    id
+                    nombre
+                    descripcion
+                    url
+                    listaNombre
+                    }
                 }
-            }
             `;
-        
+
             const response = await fetch("http://localhost:4000/graphql", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                query,
-                variables: {
-                perfilId,
-                query: terminoBusqueda
-                }
-            })
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    query,
+                    variables: {
+                    perfilId,
+                    query: terminoBusqueda
+                    }
+                })
             });
-        
+
             const result = await response.json();
-        
+
             if (result.errors) {
-            console.error("Errores GraphQL:", result.errors);
-            mostrarMensaje("Ocurrió un error en el servidor GraphQL", true);
-            return;
+                console.error("Errores GraphQL:", result.errors);
+                mostrarMensaje("Ocurrió un error en el servidor GraphQL", true);
+                return;
             }
-        
+
             const resultados = result.data?.buscarVideosPorPerfil || [];
             mostrarResultados(resultados, terminoBusqueda);
-        
+
         } catch (error) {
             console.error("Error completo:", error);
             mostrarMensaje("Ocurrió un error al realizar la búsqueda", true);
         }
     }
-      
 
     function mostrarResultados(videos, terminoBusqueda = '') {
         playlistsContainer.innerHTML = '';
@@ -94,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
         videos.forEach(video => {
             const videoCard = document.createElement('div');
             videoCard.className = 'video-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 mb-4';
-            
+
             const nombreLimpio = video.nombre.split('&')[0].trim();
 
             // Resaltar coincidencias
@@ -110,11 +109,16 @@ document.addEventListener("DOMContentLoaded", function() {
                         <p class="text-sm text-pink-600 mb-2">Lista: ${video.listaNombre}</p>
                         <p class="text-xs text-gray-500 mb-3">${video.descripcion?.substring(0, 100) || ''}...</p>
                     </div>
-                    <div class="flex justify-end">
-                        <a href="${video.url}" target="_blank"
-                           class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
-                           Ver en YouTube
-                        </a>
+                    <div class="flex justify-center mb-4">
+                        <div class="video-container" style="padding-bottom: 56.25%; position: relative; width: 100%; max-width: 300px;">
+                            <iframe
+                                src="https://www.youtube.com/embed/${extractVideoId(video.url)}?enablejsapi=1"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                class="absolute top-0 left-0 w-full h-full rounded-lg"
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             `;
@@ -122,6 +126,12 @@ document.addEventListener("DOMContentLoaded", function() {
             playlistsContainer.appendChild(videoCard);
         });
     }
+
+    function extractVideoId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+      }
 
     // Botón buscar (opcional si el usuario prefiere usarlo)
     searchButton.addEventListener('click', () => {
