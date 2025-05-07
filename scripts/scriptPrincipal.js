@@ -22,18 +22,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   let perfilId;
-  try {
-    const payload = JSON.parse(atob(perfilToken.split('.')[1]));
-    perfilId = payload.perfilId;
-  } catch (e) {
-    console.error("Token de perfil inválido:", e);
-    alert("Perfil no válido. Inicia sesión nuevamente.");
-    window.location.href = "index.html";
-    return;
-  }
+    try {
+      const payload = JSON.parse(atob(perfilToken.split('.')[1]));
+      perfilId = payload.perfilId;
+    } catch (e) {
+      console.error("Token de perfil inválido:", e);
+      alert("Perfil no válido. Inicia sesión nuevamente.");
+      window.location.href = "index.html";
+      return;
+    }
 
-  try {
-    const query = `
+    try {
+      const query = `
       query ObtenerPlaylistsPorPerfil($perfilId: ID!) {
         playlistsPorPerfil(perfilId: $perfilId) {
           id
@@ -124,21 +124,14 @@ async function toggleVideos(playlistId) {
       videoContainer.innerHTML = `<p class="text-pink-600 text-sm">Esta lista no tiene videos.</p>`;
     } else {
       videoContainer.innerHTML = videos.map(video => `
-            <div id="videos-container">
-      <div class="video-card">
-        <div class="videos-container">
-          <iframe
-            src="https://www.youtube.com/embed/${extractVideoId(video.url)}?enablejsapi=1"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
+        <div class="mt-2 p-2 border rounded border-pink-800">
+          <h4 class="text-pink-800 font-semibold text-lg mb-1">${video.nombre}</h4>
+          <p class="text-sm text-pink-600 mb-2">${video.descripcion || ''}</p>
+          <a href="${video.url}" target="_blank"
+             class="inline-block bg-pink-500 text-pink-600 underline px-4 py-1 rounded hover:bg-pink-600 transition">
+             Ver en YouTube
+          </a>
         </div>
-        <div class="video-info">
-          <h3 class="video-title text-pink-800 font-semibold">${video.nombre}</h3>
-          <p class="video-description text-sm text-pink-600">${video.descripcion || ''}</p>
-        </div>
-      </div>
       `).join('');
     }
 
@@ -149,8 +142,3 @@ async function toggleVideos(playlistId) {
   }
 }
 
-function extractVideoId(url) {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-}
